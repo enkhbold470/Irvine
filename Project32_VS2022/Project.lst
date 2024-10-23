@@ -1,21 +1,21 @@
-Microsoft (R) Macro Assembler Version 14.41.34120.0	    09/29/24 01:29:36
-project2.asm						     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    10/23/24 15:51:35
+assignment3.asm						     Page 1 - 1
 
 
-				.386
-				.model flat, stdcall
-				.stack 4096
-				ExitProcess proto, dwExitCode:dword
+				; Integer Expression Calculator
+				; Calculates A = (A + B) - (C + D)
+				; Author: Enkhbold Ganbold (Inky)
+				; Date: October 23, 2024
+				; Description: This program demonstrates arithmetic operations in assembly
+				;             by calculating (A + B) - (C + D) and displaying the result
 
-				include Irvine32.inc
+				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
 			      C 
 			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
 			      C 
 			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
 			      C .NOLIST
-			      C .MODEL flat, stdcall
-c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 			      C .LIST
 			      C 
 			      C INCLUDE VirtualKeys.inc
@@ -27,97 +27,59 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 			      C .NOLIST
 			      C .LIST
 			      C 
-				includelib Irvine32.lib
 
  00000000			.data
- 00000000 41 00			hexStr1 db 'A', 0               ; Small hex example (decimal 10)
- 00000002 31 46 34 41 00	hexStr2 db '1F4A', 0            ; Middle hex example (decimal 8010)
- 00000007 46 46 46 46 46	hexStr3 db 'FFFFFFFF', 0         ; Full 32-bit hex string example (decimal 4294967295)
-	   46 46 46 00
- 00000010 00000000		resultHex dd ?
-
+ 00000000 54 68 65 20 72	    msgResult BYTE "The result of (A + B) - (C + D) is: ", 0
+	   65 73 75 6C 74
+	   20 6F 66 20 28
+	   41 20 2B 20 42
+	   29 20 2D 20 28
+	   43 20 2B 20 44
+	   29 20 69 73 3A
+	   20 00
+				    
  00000000			.code
- 00000000			main proc
-				    ; Process the first hex string
- 00000000  8D 05 00000000 R	    lea eax, hexStr1
- 00000006  E8 0000003B		    call HexToInt
- 0000000B  A3 00000010 R	    mov resultHex, eax             ; Store the result in memory
- 00000010  E8 00000069		    call WriteResult                ; Display the result
+ 00000000			main PROC
+				    ; Initialize the registers with test values
+ 00000000  B8 00000064		    mov    eax, 100    ; A = 100
+ 00000005  BB 00000032		    mov    ebx, 50     ; B = 50
+ 0000000A  B9 0000001E		    mov    ecx, 30     ; C = 30
+ 0000000F  BA 00000014		    mov    edx, 20     ; D = 20
 
-				    ; Process the second hex string
- 00000015  8D 05 00000002 R	    lea eax, hexStr2
- 0000001B  E8 00000026		    call HexToInt
- 00000020  A3 00000010 R	    mov resultHex, eax
- 00000025  E8 00000054		    call WriteResult                ; Display the result
+				    ; Save original EAX value as we'll need it for display later
+ 00000014  50			    push   eax
+				    
+				    ; Calculate (A + B)
+ 00000015  03 C3		    add    eax, ebx    ; EAX now contains (A + B)
+				    
+				    ; Calculate (C + D)
+ 00000017  8B D9		    mov    ebx, ecx    ; Move C to EBX
+ 00000019  03 DA		    add    ebx, edx    ; EBX now contains (C + D)
+				    
+				    ; Calculate final result: (A + B) - (C + D)
+ 0000001B  2B C3		    sub    eax, ebx    ; EAX now contains final result
+				    
+				    ; Display the result string
+ 0000001D  BA 00000000 R	    mov    edx, OFFSET msgResult
+ 00000022  E8 00000000 E	    call   WriteString
+				    
 
-				    ; Process the third hex string
- 0000002A  8D 05 00000007 R	    lea eax, hexStr3
- 00000030  E8 00000011		    call HexToInt
- 00000035  A3 00000010 R	    mov resultHex, eax
- 0000003A  E8 0000003F		    call WriteResult                ; Display the result
-
-				    invoke ExitProcess, 0
- 0000003F  6A 00	   *	    push   +000000000h
- 00000041  E8 00000000 E   *	    call   ExitProcess
- 00000046			main endp
-
- 00000046			HexToInt proc
- 00000046  53			    push ebx
- 00000047  51			    push ecx
- 00000048  52			    push edx
- 00000049  33 DB		    xor ebx, ebx                   ; ebx will store the result
- 0000004B  33 C9		    xor ecx, ecx                   ; ecx is the index
- 0000004D  8B D0		    mov edx, eax                   ; Load the address of the hex string
-
- 0000004F			HexLoop:
- 0000004F  8A 04 0A		    mov al, byte ptr [edx + ecx]
- 00000052  3C 00		    cmp al, 0
- 00000054  74 22		    je EndHexLoop                  ; Exit when null terminator is found
- 00000056  C1 E3 04		    shl ebx, 4                     ; Multiply the result by 16 (shift left 4 bits)
-
- 00000059  3C 30		    cmp al, '0'
- 0000005B  72 18		    jb SkipAddition                ; If less than '0', skip (invalid)
- 0000005D  3C 39		    cmp al, '9'
- 0000005F  76 0A		    jbe AddNumeric                 ; If between '0' and '9', add numeric value
- 00000061  3C 41		    cmp al, 'A'
- 00000063  72 10		    jb SkipAddition                ; If less than 'A', skip
- 00000065  3C 46		    cmp al, 'F'
- 00000067  76 06		    jbe AddAlpha                   ; If between 'A' and 'F', add alpha value
- 00000069  EB 0A		    jmp SkipAddition
-
- 0000006B			AddNumeric:
- 0000006B  2C 30		    sub al, '0'
- 0000006D  EB 04		    jmp AddToResult
-
- 0000006F			AddAlpha:
- 0000006F  2C 41		    sub al, 'A'
- 00000071  04 0A		    add al, 10
-
- 00000073			AddToResult:
- 00000073  03 D8		    add ebx, eax
-
- 00000075			SkipAddition:
- 00000075  41			    inc ecx                        ; Move to the next character
- 00000076  EB D7		    jmp HexLoop
-
- 00000078			EndHexLoop:
- 00000078  8B C3		    mov eax, ebx                   ; Move the result into eax
- 0000007A  5A			    pop edx
- 0000007B  59			    pop ecx
- 0000007C  5B			    pop ebx
- 0000007D  C3			    ret
- 0000007E			HexToInt endp
-
- 0000007E			WriteResult proc
- 0000007E  A1 00000010 R	    mov eax, resultHex             ; Load result into eax
- 00000083  E8 00000000 E	    call WriteDec                  ; Display the result as decimal
- 00000088  E8 00000000 E	    call Crlf                      ; Print a new line
- 0000008D  C3			    ret
- 0000008E			WriteResult endp
-
-				end main
-Microsoft (R) Macro Assembler Version 14.41.34120.0	    09/29/24 01:29:36
-project2.asm						     Symbols 2 - 1
+				    ; Display the numeric result
+ 00000027  E8 00000000 E	    call   WriteInt
+				    
+				    ; Add a newline for clean output
+ 0000002C  E8 00000000 E	    call   Crlf
+				    
+				    ; Restore original EAX value
+ 00000031  58			    pop    eax
+				    
+				    exit
+ 00000032  6A 00	   *	    push   +000000000h
+ 00000034  E8 00000000 E   *	    call   ExitProcess
+ 00000039			main ENDP
+				END main
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    10/23/24 15:51:35
+assignment3.asm						     Symbols 2 - 1
 
 
 
@@ -209,9 +171,9 @@ Segments and Groups:
                 N a m e                 Size     Length   Align   Combine Class
 
 FLAT . . . . . . . . . . . . . .	GROUP
-STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000014 DWord	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000008E DWord	  Public  'CODE'	
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000025 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000039 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -257,13 +219,6 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-HexToInt . . . . . . . . . . . .	P Near	 00000046 _TEXT	Length= 00000038 Public STDCALL
-  HexLoop  . . . . . . . . . . .	L Near	 0000004F _TEXT	
-  AddNumeric . . . . . . . . . .	L Near	 0000006B _TEXT	
-  AddAlpha . . . . . . . . . . .	L Near	 0000006F _TEXT	
-  AddToResult  . . . . . . . . .	L Near	 00000073 _TEXT	
-  SkipAddition . . . . . . . . .	L Near	 00000075 _TEXT	
-  EndHexLoop . . . . . . . . . .	L Near	 00000078 _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -320,13 +275,12 @@ WriteFloat . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteHexB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteHex . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteInt . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-WriteResult  . . . . . . . . . .	P Near	 0000007E _TEXT	Length= 00000010 Public STDCALL
 WriteStackFrameName  . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000046 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000039 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -552,9 +506,6 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-hexStr1  . . . . . . . . . . . .	Byte	 00000000 _DATA	
-hexStr2  . . . . . . . . . . . .	Byte	 00000002 _DATA	
-hexStr3  . . . . . . . . . . . .	Byte	 00000007 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -562,11 +513,11 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+msgResult  . . . . . . . . . . .	Byte	 00000000 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-resultHex  . . . . . . . . . . .	DWord	 00000010 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
-	   1 Warnings
+	   0 Warnings
 	   0 Errors
