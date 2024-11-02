@@ -28,6 +28,8 @@ main PROC
     mov    ebx, ecx    ; Move C to EBX
     add    ebx, edx    ; EBX now contains (C + D)
     
+
+
     ; Calculate final result: (A + B) - (C + D)
     sub    eax, ebx    ; EAX now contains final result
     
