@@ -3,49 +3,72 @@
 ; Author: Enkhbold Ganbold (Inky)
 ; Date: October 23, 2024
 ; Description: This program demonstrates arithmetic operations in assembly
-;             by calculating (A + B) - (C + D) and displaying the result
+;              by calculating (A + B) - (C + D) and displaying the result
 
 INCLUDE Irvine32.inc
 
 .data
+    valA      DWORD 100
+    valB      DWORD 50
+    valC      DWORD 30
+    valD      DWORD 20
     msgResult BYTE "The result of (A + B) - (C + D) is: ", 0
+    msgA      BYTE "A = ", 0
+    msgB      BYTE "B = ", 0
+    msgC      BYTE "C = ", 0
+    msgD      BYTE "D = ", 0
     
 .code
 main PROC
-    ; Initialize the registers with test values
-    mov    eax, 100    ; A = 100
-    mov    ebx, 50     ; B = 50
-    mov    ecx, 30     ; C = 30
-    mov    edx, 20     ; D = 20
+    ; Display initial values of A, B, C, and D
+    mov    eax, valA
+    mov    edx, OFFSET msgA
+    call   WriteString
+    call   WriteInt
+    call   Crlf
+    
+    mov    eax, valB
+    mov    edx, OFFSET msgB
+    call   WriteString
+    call   WriteInt
+    call   Crlf
+    
+    mov    eax, valC
+    mov    edx, OFFSET msgC
+    call   WriteString
+    call   WriteInt
+    call   Crlf
+    
+    mov    eax, valD
+    mov    edx, OFFSET msgD
+    call   WriteString
+    call   WriteInt
+    call   Crlf
 
-    ; Save original EAX value as we'll need it for display later
+    ; Calculate (A + B)
+    mov    eax, valA               ; Load A into EAX
+    add    eax, valB               ; EAX now contains (A + B)
+    
+    ; Save (A + B) in EAX for final calculation
     push   eax
     
-    ; Calculate (A + B)
-    add    eax, ebx    ; EAX now contains (A + B)
-    
     ; Calculate (C + D)
-    mov    ebx, ecx    ; Move C to EBX
-    add    ebx, edx    ; EBX now contains (C + D)
+    mov    ebx, valC               ; Load C into EBX
+    add    ebx, valD               ; EBX now contains (C + D)
     
-
-
     ; Calculate final result: (A + B) - (C + D)
-    sub    eax, ebx    ; EAX now contains final result
+    pop    eax                     ; Restore (A + B) from the stack
+    sub    eax, ebx                ; EAX now contains final result
     
     ; Display the result string
     mov    edx, OFFSET msgResult
     call   WriteString
     
-
     ; Display the numeric result
     call   WriteInt
     
     ; Add a newline for clean output
     call   Crlf
-    
-    ; Restore original EAX value
-    pop    eax
     
     exit
 main ENDP

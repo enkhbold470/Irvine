@@ -12,24 +12,35 @@ hexStr2 db '1F4A', 0            ; Middle hex example (decimal 8010)
 hexStr3 db 'FFFFFFFF', 0         ; Full 32-bit hex string example (decimal 4294967295)
 resultHex dd ?
 
+; Labels for output
+labelHexStr1 db "Result for hexStr1 ('A'): ", 0
+labelHexStr2 db "Result for hexStr2 ('1F4A'): ", 0
+labelHexStr3 db "Result for hexStr3 ('FFFFFFFF'): ", 0
+
 .code
 main proc
     ; Process the first hex string
     lea eax, hexStr1
     call HexToInt
     mov resultHex, eax             ; Store the result in memory
+    lea edx, labelHexStr1          ; Load the label for the first hex string
+    call WriteString
     call WriteResult                ; Display the result
 
     ; Process the second hex string
     lea eax, hexStr2
     call HexToInt
     mov resultHex, eax
+    lea edx, labelHexStr2          ; Load the label for the second hex string
+    call WriteString
     call WriteResult                ; Display the result
 
     ; Process the third hex string
     lea eax, hexStr3
     call HexToInt
     mov resultHex, eax
+    lea edx, labelHexStr3          ; Load the label for the third hex string
+    call WriteString
     call WriteResult                ; Display the result
 
     invoke ExitProcess, 0
