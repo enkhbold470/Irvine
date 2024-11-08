@@ -1,21 +1,27 @@
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/04/24 23:57:55
-assignment3.asm						     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/07/24 23:55:14
+assignment4-ex3.asm					     Page 1 - 1
 
 
-				; Integer Expression Calculator
-				; Calculates A = (A + B) - (C + D)
-				; Author: Enkhbold Ganbold (Inky)
-				; Date: October 23, 2024
-				; Description: This program demonstrates arithmetic operations in assembly
-				;              by calculating (A + B) - (C + D) and displaying the result
+				; Program Name: Array Right Rotation
+				; Author: Student
+				; Date: November 7, 2024
+				; Description: This program demonstrates array rotation in assembly language.
+				;              It performs a right rotation on a DWORD array, moving the last
+				;              element to the first position while shifting all other elements
+				;              right by one position.
 
-				INCLUDE Irvine32.inc
+				.386
+				.model flat, stdcall
+				.stack 4096
+				include Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
 			      C 
 			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
 			      C 
 			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
 			      C .NOLIST
+			      C .MODEL flat, stdcall
+c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 			      C .LIST
 			      C 
 			      C INCLUDE VirtualKeys.inc
@@ -29,82 +35,170 @@ assignment3.asm						     Page 1 - 1
 			      C 
 
  00000000			.data
- 00000000 00000064		    valA      DWORD 100
- 00000004 00000032		    valB      DWORD 50
- 00000008 0000001E		    valC      DWORD 30
- 0000000C 00000014		    valD      DWORD 20
- 00000010 54 68 65 20 72	    msgResult BYTE "The result of (A + B) - (C + D) is: ", 0
-	   65 73 75 6C 74
-	   20 6F 66 20 28
-	   41 20 2B 20 42
-	   29 20 2D 20 28
-	   43 20 2B 20 44
-	   29 20 69 73 3A
-	   20 00
- 00000035 41 20 3D 20 00	    msgA      BYTE "A = ", 0
- 0000003A 42 20 3D 20 00	    msgB      BYTE "B = ", 0
- 0000003F 43 20 3D 20 00	    msgC      BYTE "C = ", 0
- 00000044 44 20 3D 20 00	    msgD      BYTE "D = ", 0
-				    
+				; Test array and related constants
+ 00000000 00000010		array    DWORD 10h, 20h, 30h, 40h     ; Original array values
+	   00000020
+	   00000030
+	   00000040
+ 00000010 = 00000004		arraySize = ($ - array) / TYPE array   ; Calculate number of elements
+ 00000010 00000000		tempVal  DWORD ?                       ; Temporary storage for rotation
+
+				; Output messages
+ 00000014 41 72 72 61 79	titleMsg   BYTE "Array Right Rotation Demonstration", 0dh, 0ah, 0
+	   20 52 69 67 68
+	   74 20 52 6F 74
+	   61 74 69 6F 6E
+	   20 44 65 6D 6F
+	   6E 73 74 72 61
+	   74 69 6F 6E 0D
+	   0A 00
+ 00000039 42 65 66 6F 72	beforeMsg  BYTE "Before rotation: ", 0
+	   65 20 72 6F 74
+	   61 74 69 6F 6E
+	   3A 20 00
+ 0000004B 41 66 74 65 72	afterMsg   BYTE "After rotation:  ", 0
+	   20 72 6F 74 61
+	   74 69 6F 6E 3A
+	   20 20 00
+ 0000005D 4D 65 6D 6F 72	memoryMsg  BYTE "Memory Dump of Array:", 0dh, 0ah, 0
+	   79 20 44 75 6D
+	   70 20 6F 66 20
+	   41 72 72 61 79
+	   3A 0D 0A 00
+ 00000075 52 65 67 69 73	regMsg     BYTE "Register State:", 0dh, 0ah, 0
+	   74 65 72 20 53
+	   74 61 74 65 3A
+	   0D 0A 00
+ 00000087 45 72 72 6F 72	errorMsg   BYTE "Error: Array operation failed", 0dh, 0ah, 0
+	   3A 20 41 72 72
+	   61 79 20 6F 70
+	   65 72 61 74 69
+	   6F 6E 20 66 61
+	   69 6C 65 64 0D
+	   0A 00
+
  00000000			.code
  00000000			main PROC
-				    ; Display initial values of A, B, C, and D
- 00000000  A1 00000000 R	    mov    eax, valA
- 00000005  BA 00000035 R	    mov    edx, OFFSET msgA
- 0000000A  E8 00000000 E	    call   WriteString
- 0000000F  E8 00000000 E	    call   WriteInt
- 00000014  E8 00000000 E	    call   Crlf
-				    
- 00000019  A1 00000004 R	    mov    eax, valB
- 0000001E  BA 0000003A R	    mov    edx, OFFSET msgB
- 00000023  E8 00000000 E	    call   WriteString
- 00000028  E8 00000000 E	    call   WriteInt
- 0000002D  E8 00000000 E	    call   Crlf
-				    
- 00000032  A1 00000008 R	    mov    eax, valC
- 00000037  BA 0000003F R	    mov    edx, OFFSET msgC
- 0000003C  E8 00000000 E	    call   WriteString
- 00000041  E8 00000000 E	    call   WriteInt
- 00000046  E8 00000000 E	    call   Crlf
-				    
- 0000004B  A1 0000000C R	    mov    eax, valD
- 00000050  BA 00000044 R	    mov    edx, OFFSET msgD
- 00000055  E8 00000000 E	    call   WriteString
- 0000005A  E8 00000000 E	    call   WriteInt
- 0000005F  E8 00000000 E	    call   Crlf
+				    ; Display program title
+ 00000000  BA 00000014 R	    mov edx, OFFSET titleMsg
+ 00000005  E8 00000000 E	    call WriteString
+ 0000000A  E8 00000000 E	    call Crlf
 
-				    ; Calculate (A + B)
- 00000064  A1 00000000 R	    mov    eax, valA               ; Load A into EAX
- 00000069  03 05 00000004 R	    add    eax, valB               ; EAX now contains (A + B)
-				    
-				    ; Save (A + B) in EAX for final calculation
- 0000006F  50			    push   eax
-				    
-				    ; Calculate (C + D)
- 00000070  8B 1D 00000008 R	    mov    ebx, valC               ; Load C into EBX
- 00000076  03 1D 0000000C R	    add    ebx, valD               ; EBX now contains (C + D)
-				    
-				    ; Calculate final result: (A + B) - (C + D)
- 0000007C  58			    pop    eax                     ; Restore (A + B) from the stack
- 0000007D  2B C3		    sub    eax, ebx                ; EAX now contains final result
-				    
-				    ; Display the result string
- 0000007F  BA 00000010 R	    mov    edx, OFFSET msgResult
- 00000084  E8 00000000 E	    call   WriteString
-				    
-				    ; Display the numeric result
- 00000089  E8 00000000 E	    call   WriteInt
-				    
-				    ; Add a newline for clean output
- 0000008E  E8 00000000 E	    call   Crlf
-				    
+				    ; Show initial memory state
+ 0000000F  BA 0000005D R	    mov edx, OFFSET memoryMsg
+ 00000014  E8 00000000 E	    call WriteString
+ 00000019  BE 00000000 R	    mov esi, OFFSET array
+ 0000001E  B9 00000010		    mov ecx, arraySize * TYPE array
+ 00000023  E8 00000000 E	    call DumpMem
+
+				    ; Display original array
+ 00000028  BE 00000000 R	    mov esi, OFFSET array
+ 0000002D  B9 00000004		    mov ecx, arraySize
+ 00000032  E8 0000007A		    call PrintOriginalArray
+
+				    ; Store last element
+ 00000037  BE 00000000 R	    mov esi, OFFSET array
+ 0000003C  B8 00000004		    mov eax, arraySize
+ 00000041  48			    dec eax                        ; Get index of last element
+ 00000042  BB 00000004		    mov ebx, TYPE array
+ 00000047  F7 E3		    mul ebx                        ; Calculate offset to last element
+ 00000049  03 F0		    add esi, eax                  ; Point to last element
+ 0000004B  8B 06		    mov eax, [esi]                ; Get last element
+ 0000004D  A3 00000010 R	    mov tempVal, eax              ; Store it
+
+				    ; Show register state before shift
+ 00000052  E8 00000000 E	    call Crlf
+ 00000057  BA 00000075 R	    mov edx, OFFSET regMsg
+ 0000005C  E8 00000000 E	    call WriteString
+ 00000061  E8 00000000 E	    call DumpRegs
+
+				    ; Shift elements right
+ 00000066  B9 00000004		    mov ecx, arraySize
+ 0000006B  49			    dec ecx                        ; One less iteration for shifting
+ 0000006C  E8 0000008E		    call ShiftElements            ; ESI is already pointing to last element
+
+				    ; Move stored value to first position
+ 00000071  BE 00000000 R	    mov esi, OFFSET array
+ 00000076  A1 00000010 R	    mov eax, tempVal
+ 0000007B  89 06		    mov [esi], eax
+
+				    ; Display rotated array
+ 0000007D  BE 00000000 R	    mov esi, OFFSET array
+ 00000082  B9 00000004		    mov ecx, arraySize
+ 00000087  E8 0000004C		    call PrintRotatedArray
+
+				    ; Show final memory state
+ 0000008C  E8 00000000 E	    call Crlf
+ 00000091  BA 0000005D R	    mov edx, OFFSET memoryMsg
+ 00000096  E8 00000000 E	    call WriteString
+ 0000009B  BE 00000000 R	    mov esi, OFFSET array
+ 000000A0  B9 00000010		    mov ecx, arraySize * TYPE array
+ 000000A5  E8 00000000 E	    call DumpMem
+
 				    exit
- 00000093  6A 00	   *	    push   +000000000h
- 00000095  E8 00000000 E   *	    call   ExitProcess
- 0000009A			main ENDP
+ 000000AA  6A 00	   *	    push   +000000000h
+ 000000AC  E8 00000000 E   *	    call   ExitProcess
+ 000000B1			main ENDP
+
+ 000000B1			PrintOriginalArray PROC
+ 000000B1  51			    push ecx                      ; Save count
+ 000000B2  56			    push esi                      ; Save array pointer
+				    
+ 000000B3  BA 00000039 R	    mov edx, OFFSET beforeMsg
+ 000000B8  E8 00000000 E	    call WriteString
+				    
+ 000000BD  5E			    pop esi                       ; Restore array pointer
+ 000000BE  59			    pop ecx                       ; Restore count
+				    
+ 000000BF  8B 06		L1: mov eax, [esi]               ; Get current element
+ 000000C1  E8 00000000 E	    call WriteHex                ; Display in hex
+ 000000C6  B0 20		    mov al, ' '                  ; Space between numbers
+ 000000C8  E8 00000000 E	    call WriteChar
+ 000000CD  83 C6 04		    add esi, TYPE array          ; Point to next element
+ 000000D0  E2 ED		    loop L1
+				    
+ 000000D2  E8 00000000 E	    call Crlf
+ 000000D7  C3			    ret
+ 000000D8			PrintOriginalArray ENDP
+
+ 000000D8			PrintRotatedArray PROC
+ 000000D8  51			    push ecx                     ; Save count
+ 000000D9  56			    push esi                     ; Save array pointer
+				    
+ 000000DA  BA 0000004B R	    mov edx, OFFSET afterMsg
+ 000000DF  E8 00000000 E	    call WriteString
+				    
+ 000000E4  5E			    pop esi                      ; Restore array pointer
+ 000000E5  59			    pop ecx                      ; Restore count
+				    
+ 000000E6  8B 06		L1: mov eax, [esi]              ; Get current element
+ 000000E8  E8 00000000 E	    call WriteHex               ; Display in hex
+ 000000ED  B0 20		    mov al, ' '                 ; Space between numbers
+ 000000EF  E8 00000000 E	    call WriteChar
+ 000000F4  83 C6 04		    add esi, TYPE array         ; Point to next element
+ 000000F7  E2 ED		    loop L1
+				    
+ 000000F9  E8 00000000 E	    call Crlf
+ 000000FE  C3			    ret
+ 000000FF			PrintRotatedArray ENDP
+
+ 000000FF			ShiftElements PROC
+ 000000FF  51			    push ecx                    ; Save count
+ 00000100  56			    push esi                    ; Save array pointer
+				    
+ 00000101  8B 46 FC		L1: mov eax, [esi - TYPE array] ; Get previous element
+ 00000104  89 06		    mov [esi], eax             ; Move to current position
+ 00000106  83 EE 04		    sub esi, TYPE array        ; Move backward in array
+ 00000109  E2 F6		    loop L1
+				    
+ 0000010B  5E			    pop esi                    ; Restore array pointer
+ 0000010C  59			    pop ecx                    ; Restore count
+ 0000010D  C3			    ret
+ 0000010E			ShiftElements ENDP
+
 				END main
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/04/24 23:57:55
-assignment3.asm						     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/07/24 23:55:14
+assignment4-ex3.asm					     Symbols 2 - 1
 
 
 
@@ -196,9 +290,9 @@ Segments and Groups:
                 N a m e                 Size     Length   Align   Combine Class
 
 FLAT . . . . . . . . . . . . . .	GROUP
-STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000049 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000009A Para	  Public  'CODE'	
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 000000A7 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000010E DWord	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -253,6 +347,10 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+PrintOriginalArray . . . . . . .	P Near	 000000B1 _TEXT	Length= 00000027 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 000000BF _TEXT	
+PrintRotatedArray  . . . . . . .	P Near	 000000D8 _TEXT	Length= 00000027 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 000000E6 _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -278,6 +376,8 @@ SetConsoleWindowInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 SetFilePointer . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ShiftElements  . . . . . . . . .	P Near	 000000FF _TEXT	Length= 0000000F Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000101 _TEXT	
 ShowFPUStack . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Sleep  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 StrLength  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -305,7 +405,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000009A Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000000B1 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -524,10 +624,15 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+afterMsg . . . . . . . . . . . .	Byte	 0000004B _DATA	
+arraySize  . . . . . . . . . . .	Number	 00000004h   
+array  . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+beforeMsg  . . . . . . . . . . .	Byte	 00000039 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
+errorMsg . . . . . . . . . . . .	Byte	 00000087 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -538,19 +643,14 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-msgA . . . . . . . . . . . . . .	Byte	 00000035 _DATA	
-msgB . . . . . . . . . . . . . .	Byte	 0000003A _DATA	
-msgC . . . . . . . . . . . . . .	Byte	 0000003F _DATA	
-msgD . . . . . . . . . . . . . .	Byte	 00000044 _DATA	
-msgResult  . . . . . . . . . . .	Byte	 00000010 _DATA	
+memoryMsg  . . . . . . . . . . .	Byte	 0000005D _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-valA . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
-valB . . . . . . . . . . . . . .	DWord	 00000004 _DATA	
-valC . . . . . . . . . . . . . .	DWord	 00000008 _DATA	
-valD . . . . . . . . . . . . . .	DWord	 0000000C _DATA	
+regMsg . . . . . . . . . . . . .	Byte	 00000075 _DATA	
+tempVal  . . . . . . . . . . . .	DWord	 00000010 _DATA	
+titleMsg . . . . . . . . . . . .	Byte	 00000014 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
-	   0 Warnings
+	   1 Warnings
 	   0 Errors
