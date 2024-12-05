@@ -1,5 +1,5 @@
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/26/24 23:55:17
-assignment5-ex1.asm					     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 15:53:17
+assignment6-ex1.asm					     Page 1 - 1
 
 
 				; Program Name: Array Sum within Specified Range
@@ -10,6 +10,7 @@ assignment5-ex1.asm					     Page 1 - 1
 				; Procedures:
 				;   - main: Primary program logic for array sum calculation
 				;   - Demonstrates bitwise operations and range-based summation
+
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -29,110 +30,45 @@ assignment5-ex1.asm					     Page 1 - 1
 			      C .NOLIST
 			      C .LIST
 			      C 
-
  00000000			.data
-				    ; Test Arrays with Varied Data Types
- 00000000 0000000A		    array_1 SDWORD 10, 30, 25, 15, 17, 19, 40, 41, 43       ; Positive numbers
-	   0000001E
-	   00000019
-	   0000000F
-	   00000011
-	   00000013
-	   00000028
-	   00000029
-	   0000002B
- 00000024 0000000A		    array_2 SDWORD 10, -30, 25, 15, -17, 55, 40, 41, 43     ; Mixed positive/negative
-	   FFFFFFE2
-	   00000019
-	   0000000F
-	   FFFFFFEF
-	   00000037
-	   00000028
-	   00000029
-	   0000002B
-				    
-				    ; Range Limits for Summation
- 00000048 00000014		    lowerLimit SDWORD 20     ; Lower boundary of range
- 0000004C 00000028		    upperLimit SDWORD 40     ; Upper boundary of range
-				    
-				    ; Debugging Messages
- 00000050 53 75 6D 20 6F	    msg1 BYTE "Sum of Array 1: ", 0
-	   66 20 41 72 72
-	   61 79 20 31 3A
+ 00000000 45 6E 74 65 72	    prompt1 BYTE "Enter first integer: ", 0
+	   20 66 69 72 73
+	   74 20 69 6E 74
+	   65 67 65 72 3A
 	   20 00
- 00000061 53 75 6D 20 6F	    msg2 BYTE "Sum of Array 2: ", 0
-	   66 20 41 72 72
-	   61 79 20 32 3A
-	   20 00
-
+ 00000016 45 6E 74 65 72	    prompt2 BYTE "Enter second integer: ", 0
+	   20 73 65 63 6F
+	   6E 64 20 69 6E
+	   74 65 67 65 72
+	   3A 20 00
+ 0000002D 54 68 65 20 73	    resultMsg BYTE "The sum is: ", 0
+	   75 6D 20 69 73
+	   3A 20 00
  00000000			.code
  00000000			main PROC
-				    ; Procedure to calculate sum of array elements within specified range
-				    ; Input: 
-				    ;   - array_1/array_2: Source arrays
-				    ;   - lowerLimit, upperLimit: Range boundaries
-				    ; Output: 
-				    ;   - EAX: Sum of elements within range
+ 00000000  E8 00000000 E	    call Clrscr              ; Clear the screen
 
-				    ; Array 1 Processing
- 00000000  BE 00000000 R	    mov esi, OFFSET array_1      ; Load array's memory address
- 00000005  B9 00000009		    mov ecx, LENGTHOF array_1    ; Set loop counter to array length
- 0000000A  B8 00000000		    mov eax, 0                   ; Initialize sum to zero
+ 00000005  BA 00000000 R	    mov edx, OFFSET prompt1  ; Prompt for the first integer
+ 0000000A  E8 00000000 E	    call WriteString
+ 0000000F  E8 00000000 E	    call ReadInt             ; Read the first integer
+ 00000014  8B D8		    mov ebx, eax             ; Store the first integer in EBX
 
-				    ; Iterate through first array
- 0000000F			L1_SumRange:
- 0000000F  8B 1E		    mov ebx, [esi]               ; Load current array element
- 00000011  3B 1D 00000048 R	    cmp ebx, lowerLimit           ; Compare with lower boundary
- 00000017  7C 0A		    jl L1_Skip                    ; Skip if below lower limit
- 00000019  3B 1D 0000004C R	    cmp ebx, upperLimit           ; Compare with upper boundary
- 0000001F  7F 02		    jg L1_Skip                    ; Skip if above upper limit
- 00000021  03 C3		    add eax, ebx                  ; Add to sum if within range
+ 00000016  BA 00000016 R	    mov edx, OFFSET prompt2  ; Prompt for the second integer
+ 0000001B  E8 00000000 E	    call WriteString
+ 00000020  E8 00000000 E	    call ReadInt             ; Read the second integer
+ 00000025  03 C3		    add eax, ebx             ; Add the two integers (result in EAX)
 
- 00000023			L1_Skip:
- 00000023  83 C6 04		    add esi, TYPE array_1         ; Move to next array element
- 00000026  E2 E7		    loop L1_SumRange              ; Continue until all elements processed
-
-				    ; Display Array 1 Sum Results
- 00000028  BA 00000050 R	    mov edx, OFFSET msg1          ; Load message address
- 0000002D  E8 00000000 E	    call WriteString              ; Display message
- 00000032  E8 00000000 E	    call WriteInt                 ; Display sum in EAX
- 00000037  E8 00000000 E	    call Crlf                     ; New line
-
-				    ; Reset for Array 2
- 0000003C  BE 00000024 R	    mov esi, OFFSET array_2       ; Load second array's address
- 00000041  B9 00000009		    mov ecx, LENGTHOF array_2     ; Set loop counter
- 00000046  B8 00000000		    mov eax, 0                    ; Reset sum to zero
-
-				    ; Iterate through second array
- 0000004B			L2_SumRange:
- 0000004B  8B 1E		    mov ebx, [esi]                ; Load current array element
- 0000004D  3B 1D 00000048 R	    cmp ebx, lowerLimit           ; Compare with lower boundary
- 00000053  7C 0A		    jl L2_Skip                    ; Skip if below lower limit
- 00000055  3B 1D 0000004C R	    cmp ebx, upperLimit           ; Compare with upper boundary
- 0000005B  7F 02		    jg L2_Skip                    ; Skip if above upper limit
- 0000005D  03 C3		    add eax, ebx                  ; Add to sum if within range
-
- 0000005F			L2_Skip:
- 0000005F  83 C6 04		    add esi, TYPE array_2         ; Move to next array element
- 00000062  E2 E7		    loop L2_SumRange              ; Continue until all elements processed
-
-				    ; Display Array 2 Sum Results
- 00000064  BA 00000061 R	    mov edx, OFFSET msg2          ; Load message address
- 00000069  E8 00000000 E	    call WriteString              ; Display message
- 0000006E  E8 00000000 E	    call WriteInt                 ; Display sum in EAX
- 00000073  E8 00000000 E	    call Crlf                     ; New line
-
-				    ; Final debugging - register dump
- 00000078  E8 00000000 E	    call DumpRegs                 ; Show register contents
+ 00000027  BA 0000002D R	    mov edx, OFFSET resultMsg ; Print the result message
+ 0000002C  E8 00000000 E	    call WriteString
+ 00000031  E8 00000000 E	    call WriteInt            ; Display the sum
 
 				    exit
- 0000007D  6A 00	   *	    push   +000000000h
- 0000007F  E8 00000000 E   *	    call   ExitProcess
- 00000084			main ENDP
-
+ 00000036  6A 00	   *	    push   +000000000h
+ 00000038  E8 00000000 E   *	    call   ExitProcess
+ 0000003D			main ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    11/26/24 23:55:17
-assignment5-ex1.asm					     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 15:53:17
+assignment6-ex1.asm					     Symbols 2 - 1
 
 
 
@@ -225,8 +161,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000072 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000084 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000003A Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000003D Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -333,11 +269,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000084 Public STDCALL
-  L1_SumRange  . . . . . . . . .	L Near	 0000000F _TEXT	
-  L1_Skip  . . . . . . . . . . .	L Near	 00000023 _TEXT	
-  L2_SumRange  . . . . . . . . .	L Near	 0000004B _TEXT	
-  L2_Skip  . . . . . . . . . . .	L Near	 0000005F _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000003D Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -556,8 +488,6 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-array_1  . . . . . . . . . . . .	DWord	 00000000 _DATA	
-array_2  . . . . . . . . . . . .	DWord	 00000024 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
@@ -571,12 +501,11 @@ lightGray  . . . . . . . . . . .	Number	 00000007h
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
-lowerLimit . . . . . . . . . . .	DWord	 00000048 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-msg1 . . . . . . . . . . . . . .	Byte	 00000050 _DATA	
-msg2 . . . . . . . . . . . . . .	Byte	 00000061 _DATA	
+prompt1  . . . . . . . . . . . .	Byte	 00000000 _DATA	
+prompt2  . . . . . . . . . . . .	Byte	 00000016 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-upperLimit . . . . . . . . . . .	DWord	 0000004C _DATA	
+resultMsg  . . . . . . . . . . .	Byte	 0000002D _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
