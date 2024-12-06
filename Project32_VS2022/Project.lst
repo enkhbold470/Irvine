@@ -1,18 +1,18 @@
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 15:53:17
-assignment6-ex1.asm					     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 16:15:26
+assignment6-ex3.asm					     Page 1 - 1
 
 
-				; Program Name: Array Sum within Specified Range
-				; Description: Calculates sum of array elements within a given range
+				; Program Name: Color Matrix
 				; Course: CIS21JA Assembly Language
 				; Author: Inky Ganbold
-				; Date: Nov 26, 2024
-				; Procedures:
-				;   - main: Primary program logic for array sum calculation
-				;   - Demonstrates bitwise operations and range-based summation
+				; Date: Dec 5, 2024
 
+				; Program Name: Color Matrix
+				; Course: CIS21JA Assembly Language
+				; Author: Inky Ganbold
+				; Date: Dec 5, 2024
 
-				INCLUDE Irvine32.inc
+				    INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
 			      C 
 			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
@@ -30,45 +30,37 @@ assignment6-ex1.asm					     Page 1 - 1
 			      C .NOLIST
 			      C .LIST
 			      C 
- 00000000			.data
- 00000000 45 6E 74 65 72	    prompt1 BYTE "Enter first integer: ", 0
-	   20 66 69 72 73
-	   74 20 69 6E 74
-	   65 67 65 72 3A
-	   20 00
- 00000016 45 6E 74 65 72	    prompt2 BYTE "Enter second integer: ", 0
-	   20 73 65 63 6F
-	   6E 64 20 69 6E
-	   74 65 67 65 72
-	   3A 20 00
- 0000002D 54 68 65 20 73	    resultMsg BYTE "The sum is: ", 0
-	   75 6D 20 69 73
-	   3A 20 00
- 00000000			.code
- 00000000			main PROC
- 00000000  E8 00000000 E	    call Clrscr              ; Clear the screen
+ 00000000			    .data
+ 00000000 58 00			        char BYTE 'X', 0         ; Character to display
+ 00000000			    .code
+ 00000000			    main PROC
+ 00000000  B9 00000010		        mov ecx, 16              ; Loop for background colors (16 rows)
+ 00000005			    OuterLoop:
+ 00000005  51			        push ecx
+ 00000006  B9 00000010		        mov ecx, 16              ; Loop for foreground colors (16 columns)
+ 0000000B			    InnerLoop:
+ 0000000B  51			        push ecx
+ 0000000C  8B C1		        mov eax, ecx             ; Foreground color
+ 0000000E  8B D9		        mov ebx, ecx             ; Background color
+ 00000010  C1 E3 04		        shl ebx, 4               ; Shift background to higher nibble
+ 00000013  03 C3		        add eax, ebx             ; Combine foreground and background
+ 00000015  E8 00000000 E	        call SetTextColor        ; Set the text color
+ 0000001A  BA 00000000 R	        mov edx, OFFSET char     ; Point to character "X"
+ 0000001F  E8 00000000 E	        call WriteString         ; Print the character
+ 00000024  59			        pop ecx
+ 00000025  E2 E4		        loop InnerLoop
+ 00000027  E8 00000000 E	        call Crlf                ; Move to the next line
+ 0000002C  59			        pop ecx
+ 0000002D  E2 D6		        loop OuterLoop
+				        exit
+ 0000002F  6A 00	   *	    push   +000000000h
+ 00000031  E8 00000000 E   *	    call   ExitProcess
+ 00000036			    main ENDP
+				    END main
 
- 00000005  BA 00000000 R	    mov edx, OFFSET prompt1  ; Prompt for the first integer
- 0000000A  E8 00000000 E	    call WriteString
- 0000000F  E8 00000000 E	    call ReadInt             ; Read the first integer
- 00000014  8B D8		    mov ebx, eax             ; Store the first integer in EBX
 
- 00000016  BA 00000016 R	    mov edx, OFFSET prompt2  ; Prompt for the second integer
- 0000001B  E8 00000000 E	    call WriteString
- 00000020  E8 00000000 E	    call ReadInt             ; Read the second integer
- 00000025  03 C3		    add eax, ebx             ; Add the two integers (result in EAX)
-
- 00000027  BA 0000002D R	    mov edx, OFFSET resultMsg ; Print the result message
- 0000002C  E8 00000000 E	    call WriteString
- 00000031  E8 00000000 E	    call WriteInt            ; Display the sum
-
-				    exit
- 00000036  6A 00	   *	    push   +000000000h
- 00000038  E8 00000000 E   *	    call   ExitProcess
- 0000003D			main ENDP
-				END main
-Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 15:53:17
-assignment6-ex1.asm					     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.41.34123.0	    12/05/24 16:15:26
+assignment6-ex3.asm					     Symbols 2 - 1
 
 
 
@@ -161,8 +153,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000003A Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000003D Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000002 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000036 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -269,7 +261,9 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000003D Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000036 Public STDCALL
+  OuterLoop  . . . . . . . . . .	L Near	 00000005 _TEXT	
+  InnerLoop  . . . . . . . . . .	L Near	 0000000B _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -491,6 +485,7 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
+char . . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
@@ -502,10 +497,7 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-prompt1  . . . . . . . . . . . .	Byte	 00000000 _DATA	
-prompt2  . . . . . . . . . . . .	Byte	 00000016 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-resultMsg  . . . . . . . . . . .	Byte	 0000002D _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
